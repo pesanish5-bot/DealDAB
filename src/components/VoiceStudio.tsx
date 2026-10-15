@@ -28,12 +28,12 @@ export function VoiceStudio({ voices, language, agentVoiceUri, businessVoiceUri,
       </div>
       <div className="studioGrid">
         <label>Spoken language<select value={language} onChange={(event) => onLanguage(event.target.value as SpokenLanguage)}><option value="en-IN">English · India</option><option value="hi-IN">हिन्दी · भारत</option></select></label>
-        <label>BidWise voice<select value={agentVoiceUri} onChange={(event) => onAgentVoice(event.target.value)}><option value="">Automatic</option>{choices.map((voice) => <option key={`agent-${voice.voiceURI}`} value={voice.voiceURI}>{voice.name} · {voice.lang}</option>)}</select></label>
+        <label>DealDAB voice<select value={agentVoiceUri} onChange={(event) => onAgentVoice(event.target.value)}><option value="">Automatic</option>{choices.map((voice) => <option key={`agent-${voice.voiceURI}`} value={voice.voiceURI}>{voice.name} · {voice.lang}</option>)}</select></label>
         <label>Vendor voice<select value={businessVoiceUri} onChange={(event) => onBusinessVoice(event.target.value)}><option value="">Automatic</option>{choices.map((voice) => <option key={`vendor-${voice.voiceURI}`} value={voice.voiceURI}>{voice.name} · {voice.lang}</option>)}</select></label>
       </div>
       <div className="studioFooter">
         <label>Speed <input aria-label="Voice speed" type="range" min="0.8" max="1.25" step="0.05" value={rate} onChange={(event) => onRate(Number(event.target.value))} /><b>{rate.toFixed(2)}×</b></label>
-        <div><button type="button" onClick={() => onPreview("agent")}>Preview BidWise</button><button type="button" onClick={() => onPreview("business")}>Preview vendor</button></div>
+        <div><button type="button" onClick={() => onPreview("agent")}>Preview DealDAB</button><button type="button" onClick={() => onPreview("business")}>Preview vendor</button></div>
       </div>
       {language === "hi-IN" && !hasNativeLanguageVoice && <p className="voiceFallbackNote">Hindi speech text is ready, but this browser has no Hindi voice installed. It will use the browser default voice.</p>}
     </section>

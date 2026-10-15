@@ -68,7 +68,7 @@ export function negotiateWithBusiness(
       id,
       1,
       "agent",
-      `Hello, I am BidWise, an AI assistant calling for a college event team. This is a simulated vendor call. Please quote ${basket}.`,
+      `Hello, I am DealDAB, an AI assistant calling for a college event team. This is a simulated vendor call. Please quote ${basket}.`,
     ),
   );
   const initial = turn(

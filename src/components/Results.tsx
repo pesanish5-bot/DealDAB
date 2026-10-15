@@ -36,7 +36,7 @@ export function Results({ result, onEvidence }: { result: NegotiationResult; onE
       {winner ? (
         <article className="recommendation">
           <div className="recCopy">
-            <span className="eyebrow light">BidWise recommendation</span>
+            <span className="eyebrow light">DealDAB recommendation</span>
             <h2><span>🏆</span> {winner.businessName}</h2>
             <p>{result.recommendation.explanation}</p>
             <div className="recStats">

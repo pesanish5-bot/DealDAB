@@ -28,7 +28,7 @@ export function TranscriptDrawer({
         <div className="transcript">
           {session.transcript.map((turn) => (
             <div id={`turn-${turn.id}`} key={turn.id} className={`turn ${turn.speaker} ${turn.id === highlightTurnId ? "highlight" : ""}`}>
-              <div className="turnMeta"><b>{turn.speaker === "agent" ? "BidWise agent" : turn.speaker === "business" ? session.businessName : "System"}</b><span>#{turn.sequence}</span></div>
+              <div className="turnMeta"><b>{turn.speaker === "agent" ? "DealDAB agent" : turn.speaker === "business" ? session.businessName : "System"}</b><span>#{turn.sequence}</span></div>
               <p>{turn.text}</p>
             </div>
           ))}

@@ -1,9 +1,9 @@
 ---
-description: BidWise architecture and safety constraints
+description: DealDAB architecture and safety constraints
 alwaysApply: true
 ---
 
-# BidWise engineering rules
+# DealDAB engineering rules
 
 - Read `/CURSOR_HANDOFF.md`, `/README.md`, `/docs/IMPLEMENTATION_ROADMAP.md`, and `/AGENTS.md` before major changes.
 - This is an existing hackathon project. Extend it; do not restart or replace its architecture without evidence.

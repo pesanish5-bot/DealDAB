@@ -23,9 +23,9 @@ type MongoState = {
 
 declare global {
   // eslint-disable-next-line no-var
-  var __bidwiseMongoPromise: Promise<MongoState> | undefined;
+  var __dealdabMongoPromise: Promise<MongoState> | undefined;
   // eslint-disable-next-line no-var
-  var __bidwiseMemory: MemoryState | undefined;
+  var __dealdabMemory: MemoryState | undefined;
 }
 
 type MemoryState = {
@@ -37,14 +37,14 @@ type MemoryState = {
 };
 
 function memoryState(): MemoryState {
-  globalThis.__bidwiseMemory ??= {
+  globalThis.__dealdabMemory ??= {
     requests: new Map(),
     businesses: new Map(),
     sessions: new Map(),
     offers: new Map(),
     recommendations: new Map(),
   };
-  return globalThis.__bidwiseMemory;
+  return globalThis.__dealdabMemory;
 }
 
 async function connectMongo(): Promise<MongoState> {
@@ -52,7 +52,7 @@ async function connectMongo(): Promise<MongoState> {
   if (configuredUri) {
     const client = new MongoClient(configuredUri, { serverSelectionTimeoutMS: 5_000 });
     await client.connect();
-    const db = client.db(process.env.MONGODB_DB || "bidwise");
+    const db = client.db(process.env.MONGODB_DB || "dealdab");
     await ensureIndexes(db);
     return { client, db, mode: "atlas" };
   }
@@ -60,11 +60,11 @@ async function connectMongo(): Promise<MongoState> {
   const dbPath = path.join(process.cwd(), ".data", "mongodb");
   await mkdir(dbPath, { recursive: true });
   const server = await MongoMemoryServer.create({
-    instance: { dbName: "bidwise", dbPath, storageEngine: "wiredTiger" },
+    instance: { dbName: "dealdab", dbPath, storageEngine: "wiredTiger" },
   });
   const client = new MongoClient(server.getUri(), { serverSelectionTimeoutMS: 10_000 });
   await client.connect();
-  const db = client.db("bidwise");
+  const db = client.db("dealdab");
   await ensureIndexes(db);
   return { client, db, mode: "embedded", server };
 }
@@ -78,8 +78,8 @@ async function ensureIndexes(db: Db) {
 }
 
 async function mongoState(): Promise<MongoState> {
-  globalThis.__bidwiseMongoPromise ??= connectMongo();
-  return globalThis.__bidwiseMongoPromise;
+  globalThis.__dealdabMongoPromise ??= connectMongo();
+  return globalThis.__dealdabMongoPromise;
 }
 
 async function withMongo<T>(
@@ -91,7 +91,7 @@ async function withMongo<T>(
     return { value: await operation(state), mode: state.mode };
   } catch (error) {
     console.error("MongoDB unavailable; using explicit degraded memory mode", error);
-    globalThis.__bidwiseMongoPromise = undefined;
+    globalThis.__dealdabMongoPromise = undefined;
     return { value: await fallback(memoryState()), mode: "memory" };
   }
 }

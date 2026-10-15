@@ -1,8 +1,8 @@
-# BidWise AI — Cursor handoff
+# DealDAB — Cursor handoff
 
 ## Current state
 
-BidWise is a working Next.js 16 hackathon prototype for **The Negotiator — Voice AI Agent**. It accepts a college event-printing brief, runs bounded negotiations against three clearly fictional vendors, stores the complete result in MongoDB, rejects offers that violate hard constraints, ranks eligible offers deterministically, and opens exact transcript evidence for the recommendation.
+DealDAB is a working Next.js 16 hackathon prototype for **The Negotiator — Voice AI Agent**. It accepts a college event-printing brief, runs bounded negotiations against three clearly fictional vendors, stores the complete result in MongoDB, rejects offers that violate hard constraints, ranks eligible offers deterministically, and opens exact transcript evidence for the recommendation.
 
 The repository is clean on branch `main`. Latest verified commit at handoff: `bec3b4d`.
 
@@ -35,7 +35,7 @@ At handoff: production build passed, TypeScript passed, and 12/12 tests passed.
 ## Working features
 
 - Responsive negotiation UI and command center.
-- Browser speech synthesis with separate BidWise/vendor voices.
+- Browser speech synthesis with separate DealDAB/vendor voices.
 - English and deterministic Hindi speech layers.
 - Voice previews, speed control and saved voice settings.
 - Three bounded fictional vendor negotiations.
@@ -64,7 +64,7 @@ Copy `.env.example` to `.env.local`. Never commit `.env.local`.
 
 ```dotenv
 MONGODB_URI=
-MONGODB_DB=bidwise
+MONGODB_DB=dealdab
 VAPI_API_KEY=
 VAPI_PHONE_NUMBER_ID=
 ```
@@ -96,4 +96,4 @@ Leaving `MONGODB_URI` empty starts the persistent embedded MongoDB. The first ru
 
 ## Recommended first Cursor prompt
 
-> Read `AGENTS.md`, `CURSOR_HANDOFF.md`, `README.md`, and `docs/IMPLEMENTATION_ROADMAP.md`. Inspect the current Git status and run the existing tests before editing. Continue the existing BidWise implementation; do not redesign it from scratch. First make the request basket, deadline, required benefits, and preferences editable while preserving schema validation, MongoDB persistence, deterministic scoring, transcript evidence, browser voice, safe demo mode, and all current tests. Add focused tests for any behavior you change.
+> Read `AGENTS.md`, `CURSOR_HANDOFF.md`, `README.md`, and `docs/IMPLEMENTATION_ROADMAP.md`. Inspect the current Git status and run the existing tests before editing. Continue the existing DealDAB implementation; do not redesign it from scratch. First make the request basket, deadline, required benefits, and preferences editable while preserving schema validation, MongoDB persistence, deterministic scoring, transcript evidence, browser voice, safe demo mode, and all current tests. Add focused tests for any behavior you change.

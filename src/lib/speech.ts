@@ -22,12 +22,12 @@ function translateTerms(value: string) {
 export function speechText(text: string, language: SpokenLanguage): string {
   if (language === "en-IN") return text.replaceAll("INR", "rupees");
 
-  if (text === "Hello, I am BidWise. I will negotiate without making a purchase commitment.") {
-    return "नमस्ते, मैं बिडवाइज़ हूँ। मैं खरीदारी की कोई प्रतिबद्धता किए बिना बातचीत करूँगी।";
+  if (text === "Hello, I am DealDAB. I will negotiate without making a purchase commitment.") {
+    return "नमस्ते, मैं डीलडैब हूँ। मैं खरीदारी की कोई प्रतिबद्धता किए बिना बातचीत करूँगी।";
   }
 
-  const hello = text.match(/^Hello, I am BidWise, an AI assistant calling for a college event team\. This is a simulated vendor call\. Please quote (.+)\.$/);
-  if (hello) return `नमस्ते, मैं बिडवाइज़ हूँ, कॉलेज इवेंट टीम की एआई सहायक। यह एक सिम्युलेटेड वेंडर कॉल है। कृपया ${translateTerms(hello[1])} का कोटेशन दें।`;
+  const hello = text.match(/^Hello, I am DealDAB, an AI assistant calling for a college event team\. This is a simulated vendor call\. Please quote (.+)\.$/);
+  if (hello) return `नमस्ते, मैं डीलडैब हूँ, कॉलेज इवेंट टीम की एआई सहायक। यह एक सिम्युलेटेड वेंडर कॉल है। कृपया ${translateTerms(hello[1])} का कोटेशन दें।`;
 
   const initial = text.match(/^Our initial total is INR ([\d,]+)\. We can deliver at (.+)\.$/);
   if (initial) return `हमारा शुरुआती कुल मूल्य ${initial[1]} रुपये है। हम ${initial[2]} बजे तक डिलीवरी कर सकते हैं।`;

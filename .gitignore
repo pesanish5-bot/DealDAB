@@ -2,9 +2,12 @@ node_modules/
 .next/
 out/
 .env
-.env.local
+.env.*
+!.env.example
 .data/
 coverage/
 tmp/
 *.tsbuildinfo
+*.pem
+*.log
 npm-debug.log*

@@ -6,7 +6,7 @@ import { speechText } from "../src/lib/speech";
 import { createRequestDocument, runNegotiations } from "../src/lib/service";
 import { demoRequest, requestInputSchema } from "../src/lib/types";
 
-describe("BidWise demo flow", () => {
+describe("DealDAB demo flow", () => {
   it("reports browser voice honestly when phone credentials are absent", () => {
     const apiKey = process.env.VAPI_API_KEY;
     const phoneId = process.env.VAPI_PHONE_NUMBER_ID;

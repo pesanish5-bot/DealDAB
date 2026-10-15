@@ -1,4 +1,4 @@
-# BidWise implementation roadmap
+# DealDAB implementation roadmap
 
 ## What is working now
 
@@ -11,7 +11,7 @@
 
 ## Real phone calls (P1)
 
-Use one provider only: Vapi for the hackathon path. It supplies phone transport and can call the backend with status/transcript events. BidWise remains responsible for negotiation policy, offer validation, persistence and ranking.
+Use one provider only: Vapi for the hackathon path. It supplies phone transport and can call the backend with status/transcript events. DealDAB remains responsible for negotiation policy, offer validation, persistence and ranking.
 
 1. Add `VAPI_API_KEY` and `VAPI_PHONE_NUMBER_ID` locally; never expose either to the browser.
 2. Create a server-only call provider implementing `startCall`, `getCallStatus` and webhook verification.

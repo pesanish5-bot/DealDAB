@@ -47,7 +47,7 @@ export function SessionCard({
       <div className="progressTrack"><span style={{ width: `${progress}%` }} /></div>
       <div className="liveCaption" aria-live="polite">
         {latest ? (
-          <><small>{latest.speaker === "business" ? "VENDOR" : latest.speaker === "agent" ? "BIDWISE" : "SYSTEM"}</small><p>“{latest.text}”</p></>
+          <><small>{latest.speaker === "business" ? "VENDOR" : latest.speaker === "agent" ? "DEALDAB" : "SYSTEM"}</small><p>“{latest.text}”</p></>
         ) : <p className="muted">Opening the voice session…</p>}
       </div>
       <button className="textButton" type="button" onClick={onOpen}>Open transcript <span>↗</span></button>

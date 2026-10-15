@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BidWise AI — Negotiation Command Center",
-  description: "Evidence-backed voice negotiation for local procurement.",
+  title: "DealDAB — Negotiation Command Center",
+  description: "DealDAB is a voice AI negotiation platform that compares offers and returns an evidence-backed recommendation.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

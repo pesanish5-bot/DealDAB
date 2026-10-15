@@ -61,7 +61,7 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      const saved = JSON.parse(window.localStorage.getItem("bidwise-voice-settings") ?? "null") as Partial<{
+      const saved = JSON.parse(window.localStorage.getItem("dealdab-voice-settings") ?? "null") as Partial<{
         language: SpokenLanguage;
         agentVoiceUri: string;
         businessVoiceUri: string;
@@ -72,7 +72,7 @@ export default function Home() {
       if (typeof saved?.businessVoiceUri === "string") setBusinessVoiceUri(saved.businessVoiceUri);
       if (typeof saved?.rate === "number" && saved.rate >= 0.8 && saved.rate <= 1.25) setVoiceRate(saved.rate);
     } catch {
-      window.localStorage.removeItem("bidwise-voice-settings");
+      window.localStorage.removeItem("dealdab-voice-settings");
     } finally {
       setVoiceSettingsReady(true);
     }
@@ -80,7 +80,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!voiceSettingsReady) return;
-    window.localStorage.setItem("bidwise-voice-settings", JSON.stringify({
+    window.localStorage.setItem("dealdab-voice-settings", JSON.stringify({
       language: voiceLanguage,
       agentVoiceUri,
       businessVoiceUri,
@@ -178,7 +178,7 @@ export default function Home() {
           <div className="heroCopy">
             <span className="eyebrow"><i /> Voice-first procurement</span>
             <h1>Three vendor calls.<br /><em>One smarter deal.</em></h1>
-            <p>Tell BidWise what you need. Our AI voice agent negotiates with multiple businesses, validates every offer, and recommends the best value—with the transcript evidence to prove it.</p>
+            <p>Tell DealDAB what you need. Our AI voice agent negotiates with multiple businesses, validates every offer, and recommends the best value—with the transcript evidence to prove it.</p>
             <div className="flowStrip"><span>YOUR BRIEF</span><b>→</b><span>VOICE NEGOTIATION</span><b>→</b><span>PROOF-BACKED PICK</span></div>
             <div className="capabilityGrid" aria-label="Working prototype capabilities">
               <div><span className="capabilityIcon">◖))</span><p><b>Voice now</b><small>Browser speech, audible and repeatable</small></p></div>
@@ -202,7 +202,7 @@ export default function Home() {
               onAgentVoice={setAgentVoiceUri}
               onBusinessVoice={setBusinessVoiceUri}
               onRate={setVoiceRate}
-              onPreview={(speaker) => speak(speaker === "agent" ? "Hello, I am BidWise. I will negotiate without making a purchase commitment." : "Our initial total is INR 13,600. We can deliver at 8:00 am.", speaker)}
+              onPreview={(speaker) => speak(speaker === "agent" ? "Hello, I am DealDAB. I will negotiate without making a purchase commitment." : "Our initial total is INR 13,600. We can deliver at 8:00 am.", speaker)}
             />
             <label>Delivery location<input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required /></label>
             <div className="itemsLabel"><span>What you need</span><small>PRELOADED DEMO BASKET</small></div>
@@ -224,7 +224,7 @@ export default function Home() {
       {stage === "running" && (
         <section className="commandCenter">
           <div className="sectionHeading">
-            <div><span className="eyebrow"><i /> Live command center</span><h1>Negotiations in progress</h1><p>BidWise is collecting and improving comparable offers.</p></div>
+            <div><span className="eyebrow"><i /> Live command center</span><h1>Negotiations in progress</h1><p>DealDAB is collecting and improving comparable offers.</p></div>
             <VoiceControls muted={muted} speaking={speaking} onMute={() => { setMuted((value) => !value); if (!muted) window.speechSynthesis?.cancel(); }} onSkip={() => window.speechSynthesis?.cancel()} />
           </div>
           <div className="executionRail" aria-label="Negotiation pipeline">
@@ -243,7 +243,7 @@ export default function Home() {
 
       {stage === "results" && result && <div className="resultsWrap"><Results result={result} onEvidence={openEvidence} /><div className="persistenceReceipt"><span>✓</span><div><b>Audit trail persisted</b><p>Request, three sessions, transcripts, structured offers and recommendation saved to {result.databaseMode} MongoDB.</p></div></div><button className="repeatButton" type="button" onClick={() => { window.speechSynthesis?.cancel(); setStage("form"); setResult(null); setDrawer(null); }}>↻ Run the demo again</button></div>}
       <TranscriptDrawer session={drawer?.session ?? null} highlightTurnId={drawer?.turnId} onClose={() => setDrawer(null)} />
-      <footer><span>BidWise AI · The Negotiator</span><span>Transparent by design · Human approval required</span></footer>
+      <footer><span>DealDAB · The Negotiator</span><span>Transparent by design · Human approval required</span></footer>
     </main>
   );
 }

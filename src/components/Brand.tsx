@@ -1,12 +1,12 @@
 export function Brand() {
   return (
-    <div className="brand" aria-label="BidWise AI home">
+    <div className="brand" aria-label="DealDAB home">
       <span className="brandMark" aria-hidden="true">
         <span />
         <span />
         <span />
       </span>
-      <span>BidWise <b>AI</b></span>
+      <span>DealDAB</span>
     </div>
   );
 }
