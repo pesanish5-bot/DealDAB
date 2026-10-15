@@ -9,6 +9,10 @@ import { VoiceControls } from "@/components/VoiceControls";
 import { demoRequest, type NegotiationResult, type NegotiationSession, type Offer, type RequestInput } from "@/lib/types";
 
 type Stage = "form" | "running" | "results";
+type Health = {
+  database: { ok: boolean; mode: "atlas" | "embedded" | "memory" };
+  voice: { activeMode: "browser-demo" | "vapi"; realCallsConfigured: boolean };
+};
 const money = (value: number) => value.toLocaleString("en-IN");
 
 function normalizeCreatedId(payload: unknown): string | null {
@@ -29,7 +33,15 @@ export default function Home() {
   const [muted, setMuted] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [drawer, setDrawer] = useState<{ session: NegotiationSession; turnId?: string } | null>(null);
+  const [health, setHealth] = useState<Health | null>(null);
   const spokenRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    fetch("/api/health")
+      .then((response) => response.json())
+      .then((payload: Health) => setHealth(payload))
+      .catch(() => setHealth(null));
+  }, []);
 
   const speak = useCallback((text: string, speaker: "agent" | "business" | "system") => {
     if (muted || speaker === "system" || !("speechSynthesis" in window)) return;
@@ -111,7 +123,7 @@ export default function Home() {
     <main>
       <header className="topbar">
         <Brand />
-        <div className="headerMeta"><span className="dbPill"><i /> {result ? `${result.databaseMode.toUpperCase()} DATABASE` : "MONGODB READY"}</span><SimulationPill /></div>
+        <div className="headerMeta"><span className="dbPill"><i className={health?.database.ok === false ? "offline" : ""} /> {result ? `${result.databaseMode.toUpperCase()} MONGODB` : health?.database.ok ? `${health.database.mode.toUpperCase()} MONGODB` : "CHECKING MONGODB"}</span><SimulationPill /></div>
       </header>
 
       {stage === "form" && (
@@ -121,9 +133,18 @@ export default function Home() {
             <h1>Three vendor calls.<br /><em>One smarter deal.</em></h1>
             <p>Tell BidWise what you need. Our AI voice agent negotiates with multiple businesses, validates every offer, and recommends the best value—with the transcript evidence to prove it.</p>
             <div className="flowStrip"><span>YOUR BRIEF</span><b>→</b><span>VOICE NEGOTIATION</span><b>→</b><span>PROOF-BACKED PICK</span></div>
+            <div className="capabilityGrid" aria-label="Working prototype capabilities">
+              <div><span className="capabilityIcon">◖))</span><p><b>Voice now</b><small>Browser speech, audible and repeatable</small></p></div>
+              <div><span className="capabilityIcon">◉</span><p><b>MongoDB live</b><small>{health?.database.ok ? `${health.database.mode} persistence connected` : "Checking persistence…"}</small></p></div>
+              <div><span className="capabilityIcon">✓</span><p><b>Auditable pick</b><small>Rules score validated offers</small></p></div>
+            </div>
           </div>
           <form className="requestCard" onSubmit={runNegotiation}>
             <div className="cardTitle"><div><span className="eyebrow">New negotiation</span><h2>College event printing</h2></div><span className="stepTag">01 / BRIEF</span></div>
+            <div className="modeChooser" aria-label="Call mode">
+              <div className="modeOption selected"><span className="modeRadio"><i /></span><div><b>Safe voice demo</b><small>Browser audio · simulated vendors</small></div><em>ACTIVE</em></div>
+              <div className="modeOption upcoming" aria-disabled="true"><span className="modeRadio" /><div><b>Real phone calls</b><small>{health?.voice.realCallsConfigured ? "Vapi credentials detected · activation pending" : "Vapi adapter · credentials required"}</small></div><em>P1</em></div>
+            </div>
             <label>Delivery location<input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required /></label>
             <div className="itemsLabel"><span>What you need</span><small>PRELOADED DEMO BASKET</small></div>
             <div className="lineItems">
@@ -147,6 +168,12 @@ export default function Home() {
             <div><span className="eyebrow"><i /> Live command center</span><h1>Negotiations in progress</h1><p>BidWise is collecting and improving comparable offers.</p></div>
             <VoiceControls muted={muted} speaking={speaking} onMute={() => { setMuted((value) => !value); if (!muted) window.speechSynthesis?.cancel(); }} onSkip={() => window.speechSynthesis?.cancel()} />
           </div>
+          <div className="executionRail" aria-label="Negotiation pipeline">
+            <span className="active"><b>01</b> Call</span><i />
+            <span className={shownTurns > 2 ? "active" : ""}><b>02</b> Negotiate</span><i />
+            <span className={shownTurns > 8 ? "active" : ""}><b>03</b> Validate</span><i />
+            <span className={completedCount === result?.sessions.length ? "active" : ""}><b>04</b> Rank</span>
+          </div>
           {!result ? <div className="loadingPanel"><div className="orb"><span /><span /><span /></div><h2>Preparing vendor agents</h2><p>Creating the request, loading businesses and opening simulated voice sessions…</p></div> : <>
             <div className="runSummary"><span><b>{completedCount}</b> / {result.sessions.length} calls complete</span><div><i style={{ width: `${totalTurns ? (shownTurns / totalTurns) * 100 : 0}%` }} /></div><span>{shownTurns} evidence turns captured</span></div>
             <div className="sessionGrid">{result.sessions.map((session, index) => <SessionCard key={session.id} session={session} active={activeIndex === index} visibleTurns={visible[session.id] ?? 0} onOpen={() => setDrawer({ session })} />)}</div>
@@ -155,7 +182,7 @@ export default function Home() {
         </section>
       )}
 
-      {stage === "results" && result && <div className="resultsWrap"><Results result={result} onEvidence={openEvidence} /><button className="repeatButton" type="button" onClick={() => { window.speechSynthesis?.cancel(); setStage("form"); setResult(null); setDrawer(null); }}>↻ Run the demo again</button></div>}
+      {stage === "results" && result && <div className="resultsWrap"><Results result={result} onEvidence={openEvidence} /><div className="persistenceReceipt"><span>✓</span><div><b>Audit trail persisted</b><p>Request, three sessions, transcripts, structured offers and recommendation saved to {result.databaseMode} MongoDB.</p></div></div><button className="repeatButton" type="button" onClick={() => { window.speechSynthesis?.cancel(); setStage("form"); setResult(null); setDrawer(null); }}>↻ Run the demo again</button></div>}
       <TranscriptDrawer session={drawer?.session ?? null} highlightTurnId={drawer?.turnId} onClose={() => setDrawer(null)} />
       <footer><span>BidWise AI · The Negotiator</span><span>Transparent by design · Human approval required</span></footer>
     </main>

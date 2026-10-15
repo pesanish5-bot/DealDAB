@@ -1,10 +1,28 @@
 import { describe, expect, it } from "vitest";
+import { getVoiceCapability } from "../src/lib/calling";
 import { demoBusinesses } from "../src/lib/demo-data";
 import { MAX_NEGOTIATION_ROUNDS, negotiateWithBusiness } from "../src/lib/negotiation";
 import { createRequestDocument, runNegotiations } from "../src/lib/service";
 import { demoRequest, requestInputSchema } from "../src/lib/types";
 
 describe("BidWise demo flow", () => {
+  it("reports browser voice honestly when phone credentials are absent", () => {
+    const apiKey = process.env.VAPI_API_KEY;
+    const phoneId = process.env.VAPI_PHONE_NUMBER_ID;
+    delete process.env.VAPI_API_KEY;
+    delete process.env.VAPI_PHONE_NUMBER_ID;
+
+    expect(getVoiceCapability()).toMatchObject({
+      activeMode: "browser-demo",
+      browserDemoReady: true,
+      realCallsConfigured: false,
+      provider: "Vapi",
+    });
+
+    if (apiKey) process.env.VAPI_API_KEY = apiKey;
+    if (phoneId) process.env.VAPI_PHONE_NUMBER_ID = phoneId;
+  });
+
   it("creates a validated negotiation request with an id and timestamp", () => {
     const input = requestInputSchema.parse(demoRequest);
     const created = createRequestDocument(input);
