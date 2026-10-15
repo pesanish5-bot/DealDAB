@@ -1,22 +1,33 @@
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap");
 
 .console {
-  --bg: #10120c;
-  --panel: #171910;
-  --panel-2: #1d2016;
-  --line: rgba(214, 196, 156, 0.14);
-  --cream: #f4ecdc;
-  --muted: #a89b86;
-  --faint: #7d7466;
-  --copper: #d4894a;
-  --copper-deep: #b86d34;
-  --green: #8eaa6c;
-  --green-dim: #243024;
+  /* Theme adapted from the supplied negotiator UI kit. */
+  --bg: #1a0a1f;
+  --panel: #261230;
+  --panel-2: #31163d;
+  --line: #3d2149;
+  --cream: #f2efe6;
+  --muted: #b9b2a0;
+  --faint: #8f8292;
+  --copper: #dc9596;
+  --copper-deep: #c67579;
+  --green: #7fc99a;
+  --green-dim: #1d3527;
+  --warning: #e6b85c;
+  --danger: #f08a82;
+  --info: #b9a7f0;
+  --deep: #17091c;
+  --teal: #dc9596;
+  --mint: #f0c2c3;
+  --paper: #261230;
+  --radius: 12px;
+  --radius-sm: 8px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background:
-    radial-gradient(1200px 500px at 10% -10%, rgba(92, 84, 48, 0.18), transparent 55%),
+    radial-gradient(900px 480px at 12% -8%, rgba(115, 0, 113, 0.34), transparent 58%),
+    radial-gradient(740px 420px at 92% 8%, rgba(220, 149, 150, 0.1), transparent 62%),
     var(--bg);
   color: var(--cream);
   font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
@@ -25,7 +36,7 @@
 .console * { box-sizing: border-box; }
 .console button, .console input, .console select { font: inherit; color: inherit; }
 .console button { cursor: pointer; }
-.console button:focus-visible, .console input:focus-visible, .console select:focus-visible { outline: 1px solid var(--copper); outline-offset: 2px; }
+.console button:focus-visible, .console input:focus-visible, .console select:focus-visible { outline: 3px solid var(--cream); outline-offset: 2px; }
 .console h2, .console h3, .console strong, .console b { font-weight: 560; }
 
 .consoleHeader {
@@ -37,7 +48,7 @@
   align-items: center;
   padding: 0 16px;
   border-bottom: 1px solid var(--line);
-  background: rgba(16, 18, 12, 0.92);
+  background: rgba(26, 10, 31, 0.94);
 }
 .brandLockup, .boardTitle, .headerActions, .callParties, .callCardTop, .activityRow, .vendorCardTop, .lineColumnHead, .transcriptCard header, .inspector header, .actionBar {
   display: flex;
@@ -52,6 +63,7 @@
   border: 1px solid var(--line);
   color: var(--copper);
   font-size: 13px;
+  border-radius: var(--radius-sm);
 }
 .brandLockup strong, .boardTitle strong {
   display: block;
@@ -76,6 +88,7 @@
 .demoPill, .dbNote { padding: 6px 9px; color: var(--muted); font-size: 11px; white-space: nowrap; }
 .demoPill { border-style: dashed; }
 .headerActions button, .quoteButton { padding: 7px 10px; }
+.headerActions button, .quoteButton, .callVoice button, .sheetSubmit, .demoPill, .dbNote { border-radius: var(--radius-sm); }
 .headerActions button.copper, .actionBar > button, .sheetSubmit {
   border-color: transparent;
   background: linear-gradient(180deg, #e09a58, var(--copper-deep));
@@ -96,6 +109,7 @@
 .lineColumn, .callCard, .strategyCard, .transcriptCard, .inspector, .vendorCard, .savingsCard {
   background: var(--panel);
   border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
 .lineColumn { display: flex; flex-direction: column; min-height: 0; padding: 12px 10px; }
 .lineColumnHead { justify-content: space-between; padding: 0 4px 10px; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; }
@@ -111,10 +125,9 @@
   padding: 12px 12px 14px;
   text-align: left;
   color: var(--cream);
-  background: #14170f;
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  background: #211029;
 }
-.vendorCard.selected { background: #24281b; box-shadow: inset 0 0 0 1px var(--copper); }
+.vendorCard.selected { background: #32183d; box-shadow: inset 3px 0 0 var(--copper); }
 .vendorCardTop { justify-content: space-between; align-items: flex-start; gap: 8px; }
 .vendorCard strong { display: block; font-size: 14px; }
 .vendorCard small, .vendorPriceBlock small { color: var(--faint); }
@@ -134,7 +147,7 @@
 }
 .phase-received .vendorPriceBlock b { color: #d5e2c4; }
 .phase-waiting .vendorPriceBlock b { color: var(--faint); font-size: 22px; font-style: italic; }
-.vendorTrack { display: block; height: 2px; background: #2c3124; }
+.vendorTrack { display: block; height: 2px; background: var(--line); }
 .vendorTrack i { display: block; height: 100%; background: var(--copper); }
 .vendorNote { color: var(--muted); }
 
@@ -162,7 +175,7 @@
 .callStatus small { color: var(--faint); letter-spacing: 0.14em; text-transform: uppercase; font-size: 9px; }
 .activityRow { gap: 12px; margin-top: 12px; align-items: center; }
 .waveform { display: flex; align-items: center; gap: 2px; height: 28px; width: 148px; flex: 0 0 148px; }
-.waveform span { width: 2px; height: 8px; background: #6d624e; }
+.waveform span { width: 2px; height: 8px; background: #7d617f; }
 .waveform.live span { animation: wave 0.9s ease-in-out infinite alternate; background: var(--copper); }
 .waveform span:nth-child(3n) { height: 16px; }
 .waveform span:nth-child(4n) { height: 22px; }
@@ -174,11 +187,11 @@
 .pipeline { list-style: none; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 0; padding: 0; }
 .pipeline li span { display: flex; align-items: center; gap: 6px; color: var(--faint); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
 .pipeline li i { width: 12px; color: var(--green); font-style: normal; }
-.pipeline li b { display: block; height: 2px; margin-top: 6px; background: #2a2e24; }
+.pipeline li b { display: block; height: 2px; margin-top: 6px; background: var(--line); }
 .pipeline li.done span { color: var(--green); }
 .pipeline li.done b { background: var(--green); }
 .pipeline li.active span { color: var(--copper); }
-.pipeline li.active b { background: linear-gradient(90deg, var(--copper), #2a2e24); }
+.pipeline li.active b { background: linear-gradient(90deg, var(--copper), var(--line)); }
 
 .strategyCard { display: block; padding: 10px 12px; }
 .strategyCard span { display: block; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; }
@@ -196,7 +209,7 @@
 .turnRow b { display: flex; align-items: center; gap: 6px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
 .turnRow b::before { content: ""; width: 7px; height: 7px; background: currentColor; }
 .turnRow.agent b { color: var(--copper); }
-.turnRow.business b { color: #b7c7a2; }
+.turnRow.business b { color: var(--green); }
 .turnRow p { margin: 4px 0 0; font-size: 14px; line-height: 1.45; }
 .turnRow.highlight { background: rgba(212, 137, 74, 0.08); }
 .evidenceChip {
@@ -221,10 +234,10 @@
 .priceStack dd { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 28px; letter-spacing: -0.03em; }
 .priceStack .current dd { font-size: 34px; }
 .priceStack dd.pending { font-family: "IBM Plex Sans", sans-serif; font-size: 14px; font-style: italic; color: var(--muted); }
-.savingsCard { margin-top: 12px; padding: 12px; background: #1a2418; border-color: rgba(142, 170, 108, 0.45); }
+.savingsCard { margin-top: 12px; padding: 12px; background: var(--green-dim); border-color: rgba(127, 201, 154, 0.45); }
 .savingsCard span { display: block; color: var(--green); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
-.savingsCard strong { display: block; margin: 4px 0; font-family: Fraunces, Georgia, serif; font-size: 32px; font-weight: 500; color: #d7e4c8; }
-.savingsCard small { color: #b7c4aa; font-size: 12px; }
+.savingsCard strong { display: block; margin: 4px 0; font-family: Fraunces, Georgia, serif; font-size: 32px; font-weight: 500; color: #d7f0df; }
+.savingsCard small { color: #b5d8c2; font-size: 12px; }
 .benefitList, .conditionList, .evidenceList { list-style: none; margin: 0; padding: 0; }
 .benefitList li, .conditionList li { display: flex; gap: 8px; padding: 4px 0; font-size: 13px; }
 .benefitList i { color: var(--green); font-style: normal; }
@@ -247,12 +260,12 @@
   gap: 14px;
   padding: 0 14px;
   border-top: 1px solid var(--line);
-  background: #14160f;
+  background: #211029;
 }
-.mixBar { display: flex; width: 74px; height: 8px; overflow: hidden; background: #2a2e24; }
+.mixBar { display: flex; width: 74px; height: 8px; overflow: hidden; background: var(--line); border-radius: 999px; }
 .mixBar i:nth-child(1) { background: var(--copper); }
 .mixBar i:nth-child(2) { background: var(--green); }
-.mixBar i:nth-child(3) { background: #3c4034; }
+.mixBar i:nth-child(3) { background: #65436b; }
 .actionBar p { margin: 0; flex: 1; min-width: 0; font-size: 13px; text-transform: none; }
 .actionBar span { color: var(--muted); font-size: 12px; white-space: nowrap; }
 .actionBar > button { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; white-space: nowrap; }
@@ -262,17 +275,21 @@
 .consoleCompare .sectionHeading h2, .consoleCompare .offerTitle h3, .consoleCompare .priceRow s, .consoleCompare .priceRow strong { color: var(--cream); }
 .consoleCompare .offerCard, .consoleCompare .auditBadge { background: var(--panel); color: var(--cream); border-color: var(--line); }
 .consoleCompare .offerFacts, .consoleCompare .offerFacts dt, .consoleCompare .score span, .consoleCompare .eyebrow { color: var(--muted); }
-.consoleCompare .winnerRibbon { background: #3d4a2e; }
+.consoleCompare .winnerRibbon { background: #56305e; }
+.consoleCompare .saving { background: var(--green-dim); color: var(--green); }
+.consoleCompare .recommendation { background: #17091c; border: 1px solid var(--line); }
+.consoleCompare .scorePanel { background: #2e1638; }
+.consoleCompare .scoreBar i { background: var(--line); }
 .consoleCompare .evidenceButton { color: var(--copper); border-color: var(--line); }
 .compareNote { margin: 0 8px 12px; color: var(--muted); font-size: 12px; }
 
-.sheetBackdrop { position: fixed; inset: 0; z-index: 30; background: rgba(8, 9, 6, 0.72); display: flex; justify-content: flex-end; }
-.requestSheet { width: min(460px, 100%); height: 100%; overflow: auto; margin: 0; padding: 22px 20px 32px; background: #161910; border-left: 1px solid var(--line); }
+.sheetBackdrop { position: fixed; inset: 0; z-index: 30; background: rgba(12, 4, 15, 0.78); display: flex; justify-content: flex-end; }
+.requestSheet { width: min(460px, 100%); height: 100%; overflow: auto; margin: 0; padding: 22px 20px 32px; background: var(--panel); border-left: 1px solid var(--line); }
 .requestSheet header { display: flex; justify-content: space-between; align-items: flex-start; }
 .requestSheet h2 { margin: 4px 0 0; font-family: Fraunces, Georgia, serif; font-weight: 500; }
 .requestSheet header button { width: 32px; height: 32px; border: 1px solid var(--line); background: transparent; font-size: 20px; }
 .requestSheet label { display: block; margin-top: 14px; color: var(--muted); font-size: 12px; }
-.requestSheet input { width: 100%; margin-top: 6px; padding: 10px; border: 1px solid var(--line); background: #10130c; color: var(--cream); }
+.requestSheet input { width: 100%; margin-top: 6px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg); color: var(--cream); }
 .sheetMode, .sheetNote, .sheetError { font-size: 12px; line-height: 1.45; color: var(--muted); }
 .sheetError { color: #e7b2a4; }
 .sheetItems { margin-top: 12px; border: 1px solid var(--line); }
