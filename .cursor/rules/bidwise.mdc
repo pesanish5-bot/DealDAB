@@ -1,0 +1,18 @@
+---
+description: BidWise architecture and safety constraints
+alwaysApply: true
+---
+
+# BidWise engineering rules
+
+- Read `/CURSOR_HANDOFF.md`, `/README.md`, `/docs/IMPLEMENTATION_ROADMAP.md`, and `/AGENTS.md` before major changes.
+- This is an existing hackathon project. Extend it; do not restart or replace its architecture without evidence.
+- Preserve the complete safe-demo flow and truthful simulation labels.
+- MongoDB must remain part of the executed flow.
+- Validate requests, sessions and offers before persistence.
+- Keep negotiation turns bounded.
+- Use deterministic hard constraints and scoring for the winner.
+- Keep exact transcript evidence references intact.
+- Never let an AI or phone provider pay, book, contract, or invent offers.
+- Never commit `.env.local`, keys, tokens or phone credentials.
+- Run `npm test`, `npm run typecheck`, and `npm run build` before declaring a change complete.
