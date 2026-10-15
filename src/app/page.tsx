@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { AuthScreen, type AuthViewer } from "@/components/AuthScreen";
 import { OperatorBoard } from "@/components/operator/OperatorBoard";
 import { speechText, type SpokenLanguage } from "@/lib/speech";
 import { demoRequest, type NegotiationResult, type Offer, type RequestInput } from "@/lib/types";
@@ -22,6 +23,8 @@ function normalizeCreatedId(payload: unknown): string | null {
 }
 
 export default function Home() {
+  const [viewer, setViewer] = useState<AuthViewer | null | undefined>(undefined);
+  const [guest, setGuest] = useState(false);
   const [stage] = useState<Stage>("running");
   const [form, setForm] = useState<RequestInput>(demoRequest);
   const [result, setResult] = useState<NegotiationResult | null>(null);
@@ -42,6 +45,13 @@ export default function Home() {
   const [voiceRate, setVoiceRate] = useState(1);
   const [voiceSettingsReady, setVoiceSettingsReady] = useState(false);
   const spokenRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    fetch("/api/auth/session", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((payload: { user: AuthViewer | null }) => setViewer(payload.user))
+      .catch(() => setViewer(null));
+  }, []);
 
   useEffect(() => {
     fetch("/api/health")
@@ -155,10 +165,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (demoBooted) return;
+    if (viewer === undefined || (!viewer && !guest) || demoBooted) return;
     demoBooted = true;
     void runNegotiation();
-  }, []);
+  }, [guest, viewer]);
 
   const openEvidence = (offer: Offer, key: string) => {
     if (!result) return;
@@ -176,6 +186,16 @@ export default function Home() {
       ? health.database.mode === "memory" ? "memory · not durable" : `${health.database.mode} mongodb`
       : "checking mongodb";
 
+  if (viewer === undefined) return <AuthScreen checking onAuthenticated={setViewer} onGuest={() => setGuest(true)} />;
+  if (!viewer && !guest) return <AuthScreen onAuthenticated={setViewer} onGuest={() => setGuest(true)} />;
+
+  const signOut = async () => {
+    if (viewer) await fetch("/api/auth/logout", { method: "POST" });
+    window.speechSynthesis?.cancel();
+    setGuest(false);
+    setViewer(null);
+  };
+
   return (
     <OperatorBoard
       form={form}
@@ -192,6 +212,7 @@ export default function Home() {
       error={error}
       realCallsConfigured={Boolean(health?.voice.realCallsConfigured)}
       databaseLabel={databaseLabel}
+      viewerLabel={viewer?.name ?? "Judge demo"}
       voices={voices.map(({ name, lang, voiceURI }) => ({ name, lang, voiceURI }))}
       language={voiceLanguage}
       agentVoiceUri={agentVoiceUri}
@@ -212,6 +233,7 @@ export default function Home() {
       onPreview={(speaker) => speak(speaker === "agent" ? "Hello, I am DealDAB. I will negotiate without making a purchase commitment." : "Our initial total is INR 13,600. We can deliver at 8:00 am.", speaker)}
       onSubmit={(event) => { void runNegotiation(event); }}
       onEvidenceOffer={openEvidence}
+      onSignOut={() => { void signOut(); }}
     />
   );
 }

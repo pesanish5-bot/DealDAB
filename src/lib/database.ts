@@ -13,6 +13,26 @@ import type {
 type StoredRequest = RequestInput & { id: string; createdAt: string };
 export type DatabaseMode = "atlas" | "embedded" | "memory";
 
+export type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  createdAt: string;
+};
+
+type AuthSession = {
+  id: string;
+  userId: string;
+  tokenHash: string;
+  createdAt: string;
+  expiresAt: Date;
+};
+
+export type PublicUser = Pick<AuthUser, "id" | "name" | "email">;
+
+export class DatabaseConflictError extends Error {}
+
 type MongoState = {
   client: MongoClient;
   db: Db;
@@ -33,6 +53,8 @@ type MemoryState = {
   sessions: Map<string, NegotiationSession>;
   offers: Map<string, Offer>;
   recommendations: Map<string, Recommendation>;
+  users: Map<string, AuthUser>;
+  authSessions: Map<string, AuthSession>;
 };
 
 function memoryState(): MemoryState {
@@ -42,6 +64,8 @@ function memoryState(): MemoryState {
     sessions: new Map(),
     offers: new Map(),
     recommendations: new Map(),
+    users: new Map(),
+    authSessions: new Map(),
   };
   return globalThis.__dealdabMemory;
 }
@@ -78,6 +102,9 @@ async function ensureIndexes(db: Db) {
     db.collection("negotiationSessions").createIndex({ requestId: 1, businessId: 1 }),
     db.collection("offers").createIndex({ requestId: 1, businessId: 1 }, { unique: true }),
     db.collection("recommendations").createIndex({ requestId: 1 }, { unique: true }),
+    db.collection("users").createIndex({ email: 1 }, { unique: true }),
+    db.collection("authSessions").createIndex({ tokenHash: 1 }, { unique: true }),
+    db.collection("authSessions").createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
   ]);
 }
 
@@ -94,10 +121,71 @@ async function withMongo<T>(
     const state = await mongoState();
     return { value: await operation(state), mode: state.mode };
   } catch (error) {
+    if (error instanceof DatabaseConflictError) throw error;
+    if (typeof error === "object" && error && "code" in error && error.code === 11000) {
+      throw new DatabaseConflictError("An account with this email already exists.");
+    }
     console.error("MongoDB unavailable; using explicit degraded memory mode", error);
     globalThis.__dealdabMongoPromise = undefined;
     return { value: await fallback(memoryState()), mode: "memory" };
   }
+}
+
+export async function createAuthUser(user: AuthUser): Promise<PublicUser> {
+  const result = await withMongo(
+    async ({ db }) => {
+      const existing = await db.collection<AuthUser>("users").findOne({ email: user.email });
+      if (existing) throw new DatabaseConflictError("An account with this email already exists.");
+      await db.collection<AuthUser>("users").insertOne(user);
+      return { id: user.id, name: user.name, email: user.email };
+    },
+    (memory) => {
+      if (memory.users.has(user.email)) throw new DatabaseConflictError("An account with this email already exists.");
+      memory.users.set(user.email, user);
+      return { id: user.id, name: user.name, email: user.email };
+    },
+  );
+  return result.value;
+}
+
+export async function findAuthUserByEmail(email: string): Promise<AuthUser | null> {
+  const result = await withMongo(
+    ({ db }) => db.collection<AuthUser>("users").findOne({ email }, { projection: { _id: 0 } }),
+    (memory) => memory.users.get(email) ?? null,
+  );
+  return result.value;
+}
+
+export async function createAuthSession(session: AuthSession): Promise<void> {
+  await withMongo(
+    async ({ db }) => void await db.collection<AuthSession>("authSessions").insertOne(session),
+    (memory) => void memory.authSessions.set(session.tokenHash, session),
+  );
+}
+
+export async function getAuthSessionUser(tokenHash: string): Promise<PublicUser | null> {
+  const result = await withMongo(
+    async ({ db }) => {
+      const session = await db.collection<AuthSession>("authSessions").findOne({ tokenHash, expiresAt: { $gt: new Date() } });
+      if (!session) return null;
+      const user = await db.collection<AuthUser>("users").findOne({ id: session.userId }, { projection: { _id: 0, passwordHash: 0 } });
+      return user ? { id: user.id, name: user.name, email: user.email } : null;
+    },
+    (memory) => {
+      const session = memory.authSessions.get(tokenHash);
+      if (!session || session.expiresAt <= new Date()) return null;
+      const user = [...memory.users.values()].find((candidate) => candidate.id === session.userId);
+      return user ? { id: user.id, name: user.name, email: user.email } : null;
+    },
+  );
+  return result.value;
+}
+
+export async function deleteAuthSession(tokenHash: string): Promise<void> {
+  await withMongo(
+    async ({ db }) => void await db.collection<AuthSession>("authSessions").deleteOne({ tokenHash }),
+    (memory) => void memory.authSessions.delete(tokenHash),
+  );
 }
 
 export async function saveRequest(request: StoredRequest): Promise<DatabaseMode> {

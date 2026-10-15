@@ -1,6 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { demoBusinesses } from "@/lib/demo-data";
 import { Results } from "@/components/Results";
 import type { SpokenLanguage } from "@/lib/speech";
@@ -30,6 +31,7 @@ export function OperatorBoard({
   error,
   realCallsConfigured,
   databaseLabel,
+  viewerLabel,
   voices,
   language,
   agentVoiceUri,
@@ -50,6 +52,7 @@ export function OperatorBoard({
   onPreview,
   onSubmit,
   onEvidenceOffer,
+  onSignOut,
 }: {
   form: RequestInput;
   result: NegotiationResult | null;
@@ -65,6 +68,7 @@ export function OperatorBoard({
   error: string | null;
   realCallsConfigured: boolean;
   databaseLabel: string;
+  viewerLabel: string;
   voices: VoiceOption[];
   language: SpokenLanguage;
   agentVoiceUri: string;
@@ -85,6 +89,7 @@ export function OperatorBoard({
   onPreview: (speaker: "agent" | "business") => void;
   onSubmit: (event: FormEvent) => void;
   onEvidenceOffer: (offer: Offer, key: string) => void;
+  onSignOut: () => void;
 }) {
   const lines = buildLines(result, visible, activeIndex, selectedBusinessId, loading);
   const selected = lines.find((line) => line.selected) ?? lines[0];
@@ -123,19 +128,22 @@ export function OperatorBoard({
         <div className="headerActions">
           <span className="demoPill">Illustrative demo data · simulated call</span>
           <span className="dbNote">{databaseLabel}</span>
+          <span className="userPill" title={`Signed in as ${viewerLabel}`}><i>{viewerLabel.slice(0, 1).toUpperCase()}</i>{viewerLabel}</span>
           <button type="button" onClick={onOpenRequest}>Open request</button>
           <button type="button" onClick={() => { const quote = model.evidence.at(-1); if (quote) onHighlight(quote.id); }} disabled={!model.evidence.length}>View quote</button>
           <button type="button" className="copper" onClick={onCompare} disabled={!received && !comparing}>Compare available offers</button>
+          <button type="button" className="signOutButton" onClick={onSignOut}>Sign out</button>
         </div>
       </header>
 
+      <AnimatePresence mode="wait" initial={false}>
       {comparing && result ? (
-        <div className="consoleCompare">
+        <motion.div key="comparison" className="consoleCompare" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: .22 }}>
           <Results result={revealedResult(result, visible)} onEvidence={onEvidenceOffer} />
           <p className="compareNote">Comparison uses the scored offers stored for this request. Hard constraints still reject an attractive price that misses a requirement.</p>
-        </div>
+        </motion.div>
       ) : (
-        <div className="consoleBody">
+        <motion.div key="operator" className="consoleBody" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .18 }}>
           <VendorLineList lines={lines} onSelect={onSelectBusiness} />
           <main className="callColumn">
             <ActiveCallPanel
@@ -164,8 +172,9 @@ export function OperatorBoard({
             onEvidence={onHighlight}
             onViewQuote={() => { const quote = model.evidence.at(-1); if (quote) onHighlight(quote.id); }}
           />
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       <BottomActionBar
         lines={lines}
