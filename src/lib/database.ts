@@ -1,7 +1,6 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { MongoClient, type Db } from "mongodb";
-import { MongoMemoryServer } from "mongodb-memory-server";
 import type {
   Business,
   NegotiationResult,
@@ -18,7 +17,7 @@ type MongoState = {
   client: MongoClient;
   db: Db;
   mode: Exclude<DatabaseMode, "memory">;
-  server?: MongoMemoryServer;
+  server?: { stop: () => Promise<boolean> };
 };
 
 declare global {
@@ -57,8 +56,13 @@ async function connectMongo(): Promise<MongoState> {
     return { client, db, mode: "atlas" };
   }
 
+  if (process.env.VERCEL) {
+    throw new Error("Set MONGODB_URI for the hosted DealDAB deployment. Embedded MongoDB cannot run on serverless.");
+  }
+
   const dbPath = path.join(process.cwd(), ".data", "mongodb");
   await mkdir(dbPath, { recursive: true });
+  const { MongoMemoryServer } = await import("mongodb-memory-server");
   const server = await MongoMemoryServer.create({
     instance: { dbName: "dealdab", dbPath, storageEngine: "wiredTiger" },
   });

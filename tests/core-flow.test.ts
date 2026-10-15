@@ -88,6 +88,32 @@ describe("DealDAB demo flow", () => {
     expect(result.recommendation.explanation).toContain("PixelPress Works");
   });
 
+  it("quotes an edited basket and honors a relaxed deadline", () => {
+    const request = createRequestDocument({
+      ...demoRequest,
+      lineItems: [{ name: "A4 programmes", quantity: 40 }],
+      deliveryDeadline: "2026-10-16T12:00:00+05:30",
+      maximumPriceInr: 15_000,
+    });
+    const { session } = negotiateWithBusiness(request.id, request, demoBusinesses[1]);
+    const result = runNegotiations(request);
+    const quickInk = result.offers.find((offer) => offer.businessName === "QuickInk Express");
+
+    expect(session.transcript[0]?.text).toContain("40 A4 programmes");
+    expect(quickInk?.eligible).toBe(true);
+  });
+
+  it("does not apply a deadline constraint that was turned off", () => {
+    const result = runNegotiations(createRequestDocument({
+      ...demoRequest,
+      hardConstraints: ["complete_quantity", "digital_proof"],
+    }));
+    const quickInk = result.offers.find((offer) => offer.businessName === "QuickInk Express");
+
+    expect(quickInk?.eligible).toBe(true);
+    expect(quickInk?.rejectionReasons.join(" ")).not.toContain("deadline");
+  });
+
   it("rejects QuickInk because its delivery misses the hard deadline", () => {
     const result = runNegotiations(createRequestDocument(demoRequest));
     const quickInk = result.offers.find((offer) => offer.businessName === "QuickInk Express");

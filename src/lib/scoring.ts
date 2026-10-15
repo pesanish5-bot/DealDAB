@@ -3,15 +3,24 @@ import type { Offer, Recommendation, RequestInput } from "./types";
 
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
 
+function deadlineLabel(iso: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata",
+  }).format(new Date(iso));
+}
+
 function validateOffer(offer: Offer, request: RequestInput): Offer {
   const reasons: string[] = [];
   if (offer.finalPriceInr > request.maximumPriceInr) {
     reasons.push(`Quote exceeds the maximum acceptable price of INR ${request.maximumPriceInr.toLocaleString("en-IN")}.`);
   }
-  if (new Date(offer.deliveryAt).getTime() > new Date(request.deliveryDeadline).getTime()) {
-    reasons.push("Delivery misses the hard 8:00 AM deadline.");
+  if (request.hardConstraints.includes("deadline") && new Date(offer.deliveryAt).getTime() > new Date(request.deliveryDeadline).getTime()) {
+    reasons.push(`Delivery misses the hard ${deadlineLabel(request.deliveryDeadline)} deadline.`);
   }
-  if (!offer.benefits.includes("digital proof")) {
+  if (request.hardConstraints.includes("digital_proof") && !offer.benefits.includes("digital proof")) {
     reasons.push("Digital proof is not confirmed.");
   }
   const requiredEvidence = ["initialPrice", "finalPrice", "delivery", "benefits", "conditions"];

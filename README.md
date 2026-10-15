@@ -77,6 +77,18 @@ npm run build
 
 Never commit `.env.local` or credentials.
 
+## Hosting on a .xyz domain
+
+The local demo can start an embedded MongoDB. A public serverless host cannot. Set `MONGODB_URI` and `MONGODB_DB=dealdab` in the host’s environment before relying on saved negotiations.
+
+This Next.js app can be deployed to Vercel from the GitHub repository. After the `*.vercel.app` site is up, attach a domain you already registered, such as `dealdab.xyz`:
+
+1. In the Vercel project, open **Settings → Domains** and add the `.xyz` name.
+2. At the registrar that sold the `.xyz` name, add the DNS records Vercel shows. That is usually an `A` record for the apex name and a `CNAME` for `www`.
+3. Wait for the certificate to finish, then open the domain.
+
+Registering the `.xyz` name itself happens at a domain registrar. It is not part of this repository.
+
 ## Environment variables
 
 Copy `.env.example` to `.env.local`. Names only:
