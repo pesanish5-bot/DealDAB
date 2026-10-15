@@ -6,6 +6,8 @@ import { Results } from "@/components/Results";
 import { SessionCard } from "@/components/SessionCard";
 import { TranscriptDrawer } from "@/components/TranscriptDrawer";
 import { VoiceControls } from "@/components/VoiceControls";
+import { VoiceStudio } from "@/components/VoiceStudio";
+import { speechText, type SpokenLanguage } from "@/lib/speech";
 import { demoRequest, type NegotiationResult, type NegotiationSession, type Offer, type RequestInput } from "@/lib/types";
 
 type Stage = "form" | "running" | "results";
@@ -34,6 +36,12 @@ export default function Home() {
   const [speaking, setSpeaking] = useState(false);
   const [drawer, setDrawer] = useState<{ session: NegotiationSession; turnId?: string } | null>(null);
   const [health, setHealth] = useState<Health | null>(null);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [voiceLanguage, setVoiceLanguage] = useState<SpokenLanguage>("en-IN");
+  const [agentVoiceUri, setAgentVoiceUri] = useState("");
+  const [businessVoiceUri, setBusinessVoiceUri] = useState("");
+  const [voiceRate, setVoiceRate] = useState(1);
+  const [voiceSettingsReady, setVoiceSettingsReady] = useState(false);
   const spokenRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -43,19 +51,58 @@ export default function Home() {
       .catch(() => setHealth(null));
   }, []);
 
+  useEffect(() => {
+    if (!("speechSynthesis" in window)) return;
+    const loadVoices = () => setVoices(window.speechSynthesis.getVoices());
+    loadVoices();
+    window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+    return () => window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
+  }, []);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("bidwise-voice-settings") ?? "null") as Partial<{
+        language: SpokenLanguage;
+        agentVoiceUri: string;
+        businessVoiceUri: string;
+        rate: number;
+      }> | null;
+      if (saved?.language === "en-IN" || saved?.language === "hi-IN") setVoiceLanguage(saved.language);
+      if (typeof saved?.agentVoiceUri === "string") setAgentVoiceUri(saved.agentVoiceUri);
+      if (typeof saved?.businessVoiceUri === "string") setBusinessVoiceUri(saved.businessVoiceUri);
+      if (typeof saved?.rate === "number" && saved.rate >= 0.8 && saved.rate <= 1.25) setVoiceRate(saved.rate);
+    } catch {
+      window.localStorage.removeItem("bidwise-voice-settings");
+    } finally {
+      setVoiceSettingsReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!voiceSettingsReady) return;
+    window.localStorage.setItem("bidwise-voice-settings", JSON.stringify({
+      language: voiceLanguage,
+      agentVoiceUri,
+      businessVoiceUri,
+      rate: voiceRate,
+    }));
+  }, [agentVoiceUri, businessVoiceUri, voiceLanguage, voiceRate, voiceSettingsReady]);
+
   const speak = useCallback((text: string, speaker: "agent" | "business" | "system") => {
     if (muted || speaker === "system" || !("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text.replace(/INR/g, "rupees"));
-    const voices = window.speechSynthesis.getVoices();
-    const english = voices.filter((voice) => voice.lang.toLowerCase().startsWith("en"));
-    utterance.voice = english[speaker === "agent" ? 0 : Math.min(1, english.length - 1)] ?? null;
-    utterance.rate = speaker === "agent" ? 1.08 : 0.98;
+    const utterance = new SpeechSynthesisUtterance(speechText(text, voiceLanguage));
+    const preferredUri = speaker === "agent" ? agentVoiceUri : businessVoiceUri;
+    const matching = voices.filter((voice) => voice.lang.toLowerCase().startsWith(voiceLanguage.slice(0, 2).toLowerCase()));
+    const automatic = matching[speaker === "agent" ? 0 : Math.min(1, matching.length - 1)];
+    utterance.voice = voices.find((voice) => voice.voiceURI === preferredUri) ?? automatic ?? null;
+    utterance.lang = voiceLanguage;
+    utterance.rate = speaker === "agent" ? Math.min(1.3, voiceRate + 0.05) : Math.max(0.75, voiceRate - 0.03);
     utterance.pitch = speaker === "agent" ? 1.03 : 0.88;
     utterance.onstart = () => setSpeaking(true);
     utterance.onend = utterance.onerror = () => setSpeaking(false);
     window.speechSynthesis.speak(utterance);
-  }, [muted]);
+  }, [agentVoiceUri, businessVoiceUri, muted, voiceLanguage, voiceRate, voices]);
 
   useEffect(() => () => { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); }, []);
 
@@ -145,6 +192,18 @@ export default function Home() {
               <div className="modeOption selected"><span className="modeRadio"><i /></span><div><b>Safe voice demo</b><small>Browser audio · simulated vendors</small></div><em>ACTIVE</em></div>
               <div className="modeOption upcoming" aria-disabled="true"><span className="modeRadio" /><div><b>Real phone calls</b><small>{health?.voice.realCallsConfigured ? "Vapi credentials detected · activation pending" : "Vapi adapter · credentials required"}</small></div><em>P1</em></div>
             </div>
+            <VoiceStudio
+              voices={voices.map(({ name, lang, voiceURI }) => ({ name, lang, voiceURI }))}
+              language={voiceLanguage}
+              agentVoiceUri={agentVoiceUri}
+              businessVoiceUri={businessVoiceUri}
+              rate={voiceRate}
+              onLanguage={(language) => { setVoiceLanguage(language); setAgentVoiceUri(""); setBusinessVoiceUri(""); }}
+              onAgentVoice={setAgentVoiceUri}
+              onBusinessVoice={setBusinessVoiceUri}
+              onRate={setVoiceRate}
+              onPreview={(speaker) => speak(speaker === "agent" ? "Hello, I am BidWise. I will negotiate without making a purchase commitment." : "Our initial total is INR 13,600. We can deliver at 8:00 am.", speaker)}
+            />
             <label>Delivery location<input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required /></label>
             <div className="itemsLabel"><span>What you need</span><small>PRELOADED DEMO BASKET</small></div>
             <div className="lineItems">

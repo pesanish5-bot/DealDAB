@@ -80,7 +80,9 @@ If MongoDB cannot start or connect, the app explicitly reports degraded `memory`
 
 The three vendor profiles and their conversations are fictional simulations. The UI must label them as simulated; they are not real calls, real vendors, or recordings. The negotiation logic, transcript creation, offer extraction, validation, scoring, evidence linking, and MongoDB persistence are executed by the application during the demo.
 
-Browser text-to-speech makes the exchange audible without depending on telephony credentials. If voice is unavailable, the same live transcript remains the reliable fallback. Real phone calling is the next provider integration, not a claim of this prototype. The health API already reports whether the required Vapi credentials are configured without exposing their values.
+Browser text-to-speech makes the exchange audible without depending on telephony credentials. The Voice Studio lets the presenter choose separate installed voices for BidWise and the vendor, switch between English and a deterministic Hindi speech layer, and tune speaking speed. The canonical evidence transcript remains in English so citations stay stable. If a native Hindi browser voice is unavailable, the UI reports the fallback instead of claiming one exists.
+
+If voice is unavailable, the same live transcript remains the reliable fallback. Real phone calling is the next provider integration, not a claim of this prototype. The health API already reports whether the required Vapi credentials are configured without exposing their values.
 
 The concrete real-call, MongoDB and optional ML plan is documented in [docs/IMPLEMENTATION_ROADMAP.md](docs/IMPLEMENTATION_ROADMAP.md).
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { getVoiceCapability } from "../src/lib/calling";
 import { demoBusinesses } from "../src/lib/demo-data";
 import { MAX_NEGOTIATION_ROUNDS, negotiateWithBusiness } from "../src/lib/negotiation";
+import { speechText } from "../src/lib/speech";
 import { createRequestDocument, runNegotiations } from "../src/lib/service";
 import { demoRequest, requestInputSchema } from "../src/lib/types";
 
@@ -21,6 +22,15 @@ describe("BidWise demo flow", () => {
 
     if (apiKey) process.env.VAPI_API_KEY = apiKey;
     if (phoneId) process.env.VAPI_PHONE_NUMBER_ID = phoneId;
+  });
+
+  it("creates a deterministic Hindi speech layer without changing evidence text", () => {
+    const evidenceText = "Final offer: INR 12,400. Delivery remains 8:00 am. Conditions: approved proof returned before 7 PM.";
+    const spoken = speechText(evidenceText, "hi-IN");
+
+    expect(spoken).toContain("अंतिम प्रस्ताव 12,400 रुपये");
+    expect(spoken).toContain("शर्तें");
+    expect(evidenceText).toContain("Final offer");
   });
 
   it("creates a validated negotiation request with an id and timestamp", () => {
